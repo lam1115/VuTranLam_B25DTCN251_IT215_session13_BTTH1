@@ -24,9 +24,9 @@ def handle_http(request: Request, exc: HTTPException):
         status_code=exc.status_code,
         content={
             "statusCode": exc.status_code,
-            "message": exc.detail,
+            "message": exc.detail["message"],
             "data": None,
-            "error": exc.detail,
+            "error": exc.detail["error"],
             "path": request.url.path,
             "timestamp": datetime.now().isoformat(),
         },

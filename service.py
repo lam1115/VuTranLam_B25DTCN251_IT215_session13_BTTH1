@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 
 from models import MenuItem
 from schema import NewItems
@@ -17,11 +18,16 @@ def add_item(item: NewItems, db: Session):
         price=item.price,
     )
 
-    db.add(new_item)
-    db.commit()
-    db.refresh(new_item)
+    try:
+        db.add(new_item)
+        db.commit()
+        db.refresh(new_item)
 
-    return new_item
+        return new_item
+
+    except Exception:
+        db.rollback()
+        raise
 
 
 def get_all(db: Session):
@@ -50,10 +56,15 @@ def update_item_by_id(item_id: int, item: NewItems, db: Session):
     result.calorie_count = item.calorie_count
     result.price = item.price
 
-    db.commit()
-    db.refresh(result)
+    try:
+        db.commit()
+        db.refresh(result)
 
-    return result
+        return result
+
+    except Exception:
+        db.rollback()
+        raise
 
 
 def delete_item_by_id(item_id: int, db: Session):
@@ -64,7 +75,13 @@ def delete_item_by_id(item_id: int, db: Session):
 
     del_item = result
 
-    db.delete(result)
-    db.commit()
+    try:
+        db.delete(result)
+        db.commit()
 
-    return del_item
+        return del_item
+
+    except Exception:
+        db.rollback()
+
+        raise
